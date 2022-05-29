@@ -18,7 +18,7 @@ var goarch string
 func main() {
 	app := &cli.App{
 		Name:     "fetchr",
-		Usage:    "Language agnostic tool to retrieve packages/artifacts using PackageUrls (PURL)",
+		Usage:    "Universal tool to retrieve packages/artifacts using PackageUrls (PURL)",
 		Version:  version.VERSION,
 		Compiled: time.Now(),
 		Authors: []*cli.Author{
