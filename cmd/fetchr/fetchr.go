@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/analogj/go-util/utils"
-	"github.com/packagrio/fetchr/pkg"
-	"github.com/packagrio/fetchr/pkg/config"
+	"github.com/packagrio/fetchr/pkg/actions/query"
+	"github.com/packagrio/fetchr/pkg/report"
 	"github.com/packagrio/fetchr/pkg/version"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -49,59 +50,21 @@ func main() {
 
 		Commands: []*cli.Command{
 			{
-				Name:  "start",
-				Usage: "Start a new CapsuleCD package pipeline",
+				Name:  "query",
+				Usage: "universal artifact search using Purl artifact ids",
 				Action: func(c *cli.Context) error {
 
-					configuration, _ := config.Create()
-					if c.IsSet("scm") {
-						configuration.Set(config.PACKAGR_SCM, c.String("scm"))
+					pipeline := query.Pipeline{
+						Config:          query.NewConfiguration(),
+						ArtifactPurlStr: c.Args().Get(0),
+						Logger:          logrus.New(),
 					}
-					if c.IsSet("package_type") {
-						configuration.Set(config.PACKAGR_PACKAGE_TYPE, c.String("package_type"))
-					}
-
-					//config.Set("dry_run", c.String("dry_run"))
-
-					fmt.Println("package type:", configuration.GetString(config.PACKAGR_PACKAGE_TYPE))
-					fmt.Println("scm:", configuration.GetString(config.PACKAGR_SCM))
-					fmt.Println("bump type:", configuration.GetString(config.PACKAGR_VERSION_BUMP_TYPE))
-
-					pipeline := pkg.Pipeline{}
-					err := pipeline.Start(configuration)
-					if err != nil {
-						fmt.Printf("FATAL: %+v\n", err)
-						os.Exit(1)
-					}
-
-					return nil
+					queryResults, err := pipeline.Start()
+					report.QueryReportMarkdown(queryResults)
+					return err
 				},
 
-				Flags: []cli.Flag{
-					//TODO: currently not applicable
-					//&cli.StringFlag{
-					//	Name:  "runner",
-					//	Value: "default", // can be :none, :circleci or :shippable (check the readme for why other hosted providers arn't supported.)
-					//	Usage: "The cloud CI runner that is running this PR. (Used to determine the Environmental Variables to parse)",
-					//},
-
-					&cli.StringFlag{
-						Name:  "scm",
-						Value: "default",
-						Usage: "The scm for the code, for setting additional SCM specific metadata",
-					},
-
-					&cli.StringFlag{
-						Name:  "package_type",
-						Value: "generic",
-						Usage: "The type of package being built.",
-					},
-
-					&cli.BoolFlag{
-						Name:  "dry_run",
-						Usage: "When dry run is enabled, no data is written to file system",
-					},
-				},
+				Flags: []cli.Flag{},
 			},
 		},
 	}

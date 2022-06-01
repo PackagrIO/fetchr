@@ -1,7 +1,7 @@
 package config
 
 func Create() (Interface, error) {
-	config := new(configuration)
+	config := new(BaseConfiguration)
 	if err := config.Init(); err != nil {
 		return nil, err
 	}

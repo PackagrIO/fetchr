@@ -2,6 +2,7 @@ package provider
 
 import (
 	"github.com/package-url/packageurl-go"
+	"github.com/packagrio/fetchr/pkg/models"
 	"github.com/spf13/viper"
 	"io"
 	"net/http"
@@ -54,10 +55,11 @@ type ProviderInterface interface {
 	ValidateAuth() error
 	Close()
 
+	IsAuthenticatedProvider() bool
 	IsSupportedArtifactType(actionType string, artifactType string) bool
 
 	//given a single purl, may return multiple purl's (one for each sub artifact)
-	ArtifactSearch(artifactPurl *packageurl.PackageURL) ([]*packageurl.PackageURL, error)
+	ArtifactSearch(artifactPurl *packageurl.PackageURL) ([]*models.QueryResult, error)
 
 	ArtifactUpload(cachePath string, sourceArtifactPurl *packageurl.PackageURL, destArtifactPurl *packageurl.PackageURL) error
 	ArtifactDownload(basePath string, artifactPurl *packageurl.PackageURL) ([]string, []*packageurl.PackageURL, error)

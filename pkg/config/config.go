@@ -4,16 +4,23 @@ import (
 	stderrors "errors"
 	"fmt"
 	"github.com/analogj/go-util/utils"
+	"github.com/packagrio/fetchr/pkg/provider"
 	"github.com/spf13/viper"
 	"log"
 	"os"
 )
 
+func New() *BaseConfiguration {
+	baseConfig := BaseConfiguration{}
+	baseConfig.Init()
+	return &baseConfig
+}
+
 // When initializing this class the following methods must be called:
 // Config.New
 // Config.Init
 // This is done automatically when created via the Factory.
-type configuration struct {
+type BaseConfiguration struct {
 	*viper.Viper
 }
 
@@ -25,7 +32,7 @@ type configuration struct {
 // key/value store
 // default
 
-func (c *configuration) Init() error {
+func (c *BaseConfiguration) Init() error {
 	c.Viper = viper.New()
 	//set defaults
 	c.SetDefault(PACKAGR_ENGINE_REPO_CONFIG_PATH, "packagr.yml")
@@ -45,19 +52,19 @@ func (c *configuration) Init() error {
 	return nil
 }
 
-func (c *configuration) ReadConfig(configFilePath string) error {
+func (c *BaseConfiguration) ReadConfig(configFilePath string) error {
 
 	if !utils.FileExists(configFilePath) {
-		message := fmt.Sprintf("The configuration file (%s) could not be found. Skipping", configFilePath)
+		message := fmt.Sprintf("The BaseConfiguration file (%s) could not be found. Skipping", configFilePath)
 		log.Printf(message)
 		return stderrors.New(message)
 	}
 
-	log.Printf("Loading configuration file: %s", configFilePath)
+	log.Printf("Loading BaseConfiguration file: %s", configFilePath)
 
 	config_data, err := os.Open(configFilePath)
 	if err != nil {
-		log.Printf("Error reading configuration file: %s", err)
+		log.Printf("Error reading BaseConfiguration file: %s", err)
 		return err
 	}
 	err = c.MergeConfig(config_data)
@@ -66,4 +73,8 @@ func (c *configuration) ReadConfig(configFilePath string) error {
 		return err
 	}
 	return nil
+}
+
+func (c *BaseConfiguration) ParseProviders() (map[string]map[string]provider.ProviderInterface, error) {
+	return nil, nil
 }
