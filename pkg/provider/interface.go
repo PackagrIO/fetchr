@@ -5,7 +5,6 @@ import (
 	"github.com/packagrio/fetchr/pkg/models"
 	"github.com/spf13/viper"
 	"io"
-	"net/http"
 )
 
 const (
@@ -27,7 +26,7 @@ const (
 
 // Create mock using:
 // mockgen -source=pkg/provider/interface.go -destination=pkg/provider/mock/mock_config.go
-type ProviderConfigInterface interface {
+type ConfigInterface interface {
 	Get(key string) interface{}
 	GetString(key string) string
 	GetBool(key string) bool
@@ -50,8 +49,7 @@ type ProviderConfigInterface interface {
 	AllKeys() []string
 }
 
-type ProviderInterface interface {
-	Init(providerName string, cfg ProviderConfigInterface, httpClient *http.Client) error
+type Interface interface {
 	ValidateAuth() error
 	Close()
 

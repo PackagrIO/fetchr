@@ -75,6 +75,6 @@ func (c *BaseConfiguration) ReadConfig(configFilePath string) error {
 	return nil
 }
 
-func (c *BaseConfiguration) ParseProviders() (map[string]map[string]provider.ProviderInterface, error) {
+func (c *BaseConfiguration) ParseProviders() (map[string]map[string]provider.Interface, error) {
 	return nil, nil
 }

@@ -2,24 +2,59 @@ package errors
 
 import (
 	"fmt"
+	"log"
+	"strings"
 )
 
 // Raised when config file is missing
-type ConfigFileMissingError string
+type ConfigFileMissingError error
 
-func (str ConfigFileMissingError) Error() string {
-	return fmt.Sprintf("ConfigFileMissingError: %q", string(str))
+func NewConfigFileMissingError(a ...interface{}) ConfigFileMissingError {
+	return ConfigFileMissingError(argsToError("ConfigFileMissingError", a...))
 }
 
 // Raised when the config file doesnt match schema
-type ConfigValidationError string
+type ConfigValidationError error
 
-func (str ConfigValidationError) Error() string {
-	return fmt.Sprintf("ConfigValidationError: %q", string(str))
+func NewConfigValidationError(a ...interface{}) ConfigValidationError {
+	return ConfigValidationError(argsToError("ConfigValidationError", a...))
 }
 
-type ProviderUnsupportedActionError string
+// raised when the provider is unsupported/unknown
+type ProviderUnknownError error
 
-func (str ProviderUnsupportedActionError) Error() string {
-	return fmt.Sprintf("ProviderUnsupportedActionError: %q", string(str))
+func NewProviderUnknownError(a ...interface{}) ProviderUnknownError {
+	return ProviderUnknownError(argsToError("ProviderUnknownError", a...))
+}
+
+//raised when the provider doesnt support the specified action
+type ProviderUnsupportedActionError error
+
+func NewProviderUnsupportedActionError(a ...interface{}) ProviderUnsupportedActionError {
+	return ProviderUnsupportedActionError(argsToError("ProviderUnsupportedActionError", a...))
+}
+
+type FileValidationError error
+
+func NewFileValidationError(a ...interface{}) FileValidationError {
+	return FileValidationError(argsToError("FileValidationError", a...))
+}
+
+// helpers
+// https://stackoverflow.com/a/59095385
+func argsToError(errorName string, args ...interface{}) error {
+	ph := make([]string, len(args))
+	for i, v := range args {
+		_, isErr := v.(error)
+		if isErr {
+			log.Println("ERROR DETECTED")
+			ph[i] = "%w"
+		} else {
+			ph[i] = "%v"
+		}
+	}
+	prefix := fmt.Sprintf("%s: ", errorName)
+	log.Printf("error fmt string: %s", strings.Join(ph, ", "))
+
+	return fmt.Errorf(prefix+strings.Join(ph, ", "), args...)
 }

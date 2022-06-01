@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/go-github/v33/github"
 	"github.com/package-url/packageurl-go"
 	fErrors "github.com/packagrio/fetchr/pkg/errors"
@@ -105,7 +104,7 @@ func (p *GithubProvider) IsSupportedArtifactType(actionType string, artifactType
 
 func (p *GithubProvider) ArtifactSearch(artifactPurl *packageurl.PackageURL) ([]*models.QueryResult, error) {
 	if !p.IsSupportedArtifactType(ActionSearch, artifactPurl.Type) {
-		return nil, fErrors.ProviderUnsupportedActionError(fmt.Sprintf("%s %s", ActionSearch, artifactPurl.Type))
+		return nil, fErrors.NewProviderUnsupportedActionError(ActionSearch, artifactPurl.Type)
 	}
 
 	releaseInfo, _, err := p.Client.Repositories.GetReleaseByTag(context.Background(), artifactPurl.Namespace, artifactPurl.Name, artifactPurl.Version)
@@ -125,12 +124,6 @@ func (p *GithubProvider) ArtifactSearch(artifactPurl *packageurl.PackageURL) ([]
 				})
 			}
 		} else {
-			//no asset name provided, so just list all assets
-			//newReleaseAssetPurl := packageurl.PackageURL{}
-			//err = copier.CopyWithOption(&newReleaseAssetPurl, &artifactPurl, copier.Option{IgnoreEmpty: true, DeepCopy: true})
-			//if err != nil{
-			//	return nil, err
-			//}
 			qualifiersMap := artifactPurl.Qualifiers.Map()
 			qualifiersMap["release_asset"] = releaseAsset.GetName()
 
@@ -155,21 +148,21 @@ func (p *GithubProvider) ArtifactSearch(artifactPurl *packageurl.PackageURL) ([]
 
 func (p *GithubProvider) ArtifactDownload(downloadFolderPath string, artifactPurl *packageurl.PackageURL) ([]string, []*packageurl.PackageURL, error) {
 	if !p.IsSupportedArtifactType(ActionDownload, artifactPurl.Type) {
-		return nil, nil, fErrors.ProviderUnsupportedActionError(fmt.Sprintf("%s %s", ActionSearch, artifactPurl.Type))
+		return nil, nil, fErrors.NewProviderUnsupportedActionError(ActionSearch, artifactPurl.Type)
 	}
 	return nil, nil, nil
 }
 
 func (p *GithubProvider) ArtifactUpload(artifactCachePath string, sourceArtifactPurl *packageurl.PackageURL, destArtifactPurl *packageurl.PackageURL) error {
 	if !p.IsSupportedArtifactType(ActionUpload, destArtifactPurl.Type) {
-		return fErrors.ProviderUnsupportedActionError(fmt.Sprintf("%s %s", ActionSearch, destArtifactPurl.Type))
+		return fErrors.NewProviderUnsupportedActionError(ActionSearch, destArtifactPurl.Type)
 	}
 	return nil
 }
 
 func (p *GithubProvider) ArtifactSetMetadata(metadata map[string]string, destArtifactPurl *packageurl.PackageURL) error {
 	if !p.IsSupportedArtifactType(ActionSetMetadata, destArtifactPurl.Type) {
-		return fErrors.ProviderUnsupportedActionError(fmt.Sprintf("%s %s", ActionSetMetadata, destArtifactPurl.Type))
+		return fErrors.NewProviderUnsupportedActionError(ActionSetMetadata, destArtifactPurl.Type)
 	}
 	return nil
 }
